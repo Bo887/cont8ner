@@ -13,7 +13,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 CONTAINER_NAME=$1
-umount $CONTAINER_NAME/image/rootfs/proc
+umount $CONTAINER_NAME/image/*/proc
 umount $CONTAINER_NAME/root
 
 rm -rf $CONTAINER_NAME

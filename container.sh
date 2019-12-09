@@ -14,6 +14,11 @@ fi
 
 CONTAINER_NAME=$1
 IMAGE_PATH=$2
+IMAGE_NAME=$IMAGE_PATH
+while [[ $IMAGE_NAME = *.* ]]
+do
+    IMAGE_NAME=${IMAGE_NAME%.*}
+done
 
 # setup directories for the overlayfs
 mkdir $CONTAINER_NAME
@@ -36,4 +41,4 @@ mount -t proc proc proc/
 cd -
 
 # unshare PID
-unshare -p -f --mount-proc=$PWD/image/rootfs/proc chroot image/rootfs /bin/bash
+unshare -p -f --mount-proc=$PWD/image/$IMAGE_NAME/proc chroot image/$IMAGE_NAME /bin/bash
