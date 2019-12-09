@@ -3,17 +3,21 @@
 set -e
 
 if [[ $EUID -ne 0 ]]; then
-    echo "You must be root to run this script"
+    echo "You must be root to run this script."
     exit 1
 fi
 
 if [[ $# -ne 2 ]]; then
-    echo "Invalid number of args"
+    echo "Invalid number of args."
+    echo "Usage: ./container.sh [container_name] [image_path]"
+    echo "Currently, the image has to be a .tar.gz file."
     exit 2
 fi
 
 CONTAINER_NAME=$1
 IMAGE_PATH=$2
+
+# strip .tar.gz ending from IMAGE_PATH
 IMAGE_NAME=$IMAGE_PATH
 while [[ $IMAGE_NAME = *.* ]]
 do
