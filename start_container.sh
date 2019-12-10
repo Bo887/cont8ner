@@ -7,15 +7,16 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -ne 3 ]]; then
     echo "Invalid number of args."
-    echo "Usage: ./container.sh [container_name] [image_path]"
+    echo "Usage: ./container.sh [container_name] [user_name] [image_path]"
     echo "Currently, the image has to be a .tar.gz file."
     exit 2
 fi
 
 CONTAINER_NAME=$1
-IMAGE_PATH=$2
+USER_NAME=$2
+IMAGE_PATH=$3
 
 mkdir $CONTAINER_NAME
 chmod 777 $CONTAINER_NAME
@@ -66,5 +67,7 @@ echo "Setting up Google's public DNS server..."
 rm $PWD/root/etc/resolv.conf
 echo "nameserver 8.8.8.8" > $PWD/root/etc/resolv.conf
 
-echo "Done!"
-ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/root/proc chroot root/ /bin/bash
+cp ../init_container.sh $PWD/root/init_container.sh
+chmod +x $PWD/root/init_container.sh
+
+ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/root/proc chroot root/ ./init_container.sh $CONTAINER_NAME $USER_NAME
