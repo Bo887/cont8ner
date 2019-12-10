@@ -14,12 +14,21 @@ if [[ $# -ne 1 ]]; then
 fi
 
 CONTAINER_NAME=$1
-umount $CONTAINER_NAME/image/proc
+
+echo "Unmounting procfs..."
+umount $CONTAINER_NAME/root/proc
+
+echo "Unmounting overlayfs..."
 umount $CONTAINER_NAME/root
 
+echo "Removing VETH pair..."
 VETH="veth${CONTAINER_NAME}"
-
 ip li delete ${VETH} 2>/dev/null
+
+echo "Removing netns..."
 ip netns del $CONTAINER_NAME &>/dev/null
 
+echo "Removing container..."
 rm -rf $CONTAINER_NAME
+
+echo "Done!"

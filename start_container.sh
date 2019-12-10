@@ -17,7 +17,6 @@ fi
 CONTAINER_NAME=$1
 IMAGE_PATH=$2
 
-# setup directories for the overlayfs
 mkdir $CONTAINER_NAME
 chmod 777 $CONTAINER_NAME
 
@@ -26,20 +25,19 @@ mkdir $CONTAINER_NAME/upper
 mkdir $CONTAINER_NAME/work
 mkdir $CONTAINER_NAME/root
 
+echo "Extracting image..."
 tar -xvzf $IMAGE_PATH -C $CONTAINER_NAME/image > /dev/null
 
-# mount overlayfs
+echo "Mounting overlayfs..."
 cd $CONTAINER_NAME
 mount -t overlay overlay -o lowerdir=image,upperdir=upper,workdir=work root
 
-# setup /dev, /sys, and /proc
-cd image
+echo "Mounting procfs..."
+cd root
 mount -t proc proc proc/
-#mount --bind /sys sys/
-#mount --bind /dev dev/
-cd -
+cd - > /dev/null
 
-# setup networking
+echo "Setting up network namespace..."
 VETH="veth$CONTAINER_NAME"
 VPEER="vpeer$CONTAINER_NAME"
 VETH_ADDR="10.200.1.1"
@@ -64,9 +62,9 @@ iptables -t nat -A POSTROUTING -s $VPEER_ADDR/24 -o $IFACE -j MASQUERADE
 iptables -A FORWARD -i $IFACE -o $VETH -j ACCEPT
 iptables -A FORWARD -o $IFACE -i $VETH -j ACCEPT
 
-# dns
-rm $PWD/image/etc/resolv.conf
-echo "nameserver 8.8.8.8" > $PWD/image/etc/resolv.conf
+echo "Setting up Google's public DNS server..."
+rm $PWD/root/etc/resolv.conf
+echo "nameserver 8.8.8.8" > $PWD/root/etc/resolv.conf
 
-# unshare in the new network namespace
-ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/image/proc chroot root/ /bin/bash
+echo "Done!"
+ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/root/proc chroot root/ /bin/bash
