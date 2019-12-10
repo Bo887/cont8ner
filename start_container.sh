@@ -69,4 +69,4 @@ rm $PWD/image/etc/resolv.conf
 echo "nameserver 8.8.8.8" > $PWD/image/etc/resolv.conf
 
 # unshare in the new network namespace
-ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/image/proc chroot image/ /bin/bash
+ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/image/proc chroot root/ /bin/bash
