@@ -17,13 +17,6 @@ fi
 CONTAINER_NAME=$1
 IMAGE_PATH=$2
 
-# strip .tar.gz ending from IMAGE_PATH
-IMAGE_NAME=$IMAGE_PATH
-while [[ $IMAGE_NAME = *.* ]]
-do
-    IMAGE_NAME=${IMAGE_NAME%.*}
-done
-
 # setup directories for the overlayfs
 mkdir $CONTAINER_NAME
 chmod 777 $CONTAINER_NAME
@@ -40,7 +33,7 @@ cd $CONTAINER_NAME
 mount -t overlay overlay -o lowerdir=image,upperdir=upper,workdir=work root
 
 # setup /dev, /sys, and /proc
-cd image/rootfs
+cd image
 mount -t proc proc proc/
 #mount --bind /sys sys/
 #mount --bind /dev dev/
@@ -72,4 +65,4 @@ iptables -A FORWARD -i ${IFACE} -o ${VETH} -j ACCEPT
 iptables -A FORWARD -o ${IFACE} -i ${VETH} -j ACCEPT
 
 # unshare in the new network namespace
-ip netns exec ${CONTAINER_NAME} unshare -p -f --mount-proc=$PWD/image/$IMAGE_NAME/proc chroot image/$IMAGE_NAME /bin/bash
+ip netns exec ${CONTAINER_NAME} unshare -p -f --mount-proc=$PWD/image/proc chroot image/ /bin/bash
