@@ -64,5 +64,9 @@ iptables -t nat -A POSTROUTING -s ${VPEER_ADDR}/24 -o ${IFACE} -j MASQUERADE
 iptables -A FORWARD -i ${IFACE} -o ${VETH} -j ACCEPT
 iptables -A FORWARD -o ${IFACE} -i ${VETH} -j ACCEPT
 
+# dns
+rm $PWD/image/etc/resolv.conf
+echo "nameserver 8.8.8.8" > $PWD/image/etc/resolv.conf
+
 # unshare in the new network namespace
 ip netns exec ${CONTAINER_NAME} unshare -p -f --mount-proc=$PWD/image/proc chroot image/ /bin/bash
