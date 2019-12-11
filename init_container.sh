@@ -7,20 +7,17 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ $# -ne 2 ]]; then
+if [[ $# -ne 1 ]]; then
     echo "Invalid number of args."
-    echo "Usage: ./init_container.sh [container_name] [user_name]"
-    echo "Currently, the image has to be a .tar.gz file."
+    echo "Usage: ./init_container.sh [user_name]"
     exit 2
 fi
 
-CONTAINER_NAME=$1
-USER_NAME=$2
+USER_NAME=$1
 
 echo "Setting up user $USER_NAME..."
-sudo adduser $USER_NAME
+adduser $USER_NAME
 
-echo "Switching to user $USER_NAME..."
-su - $USER_NAME
+ulimit -u 1024
 
 /bin/bash

@@ -39,8 +39,8 @@ mount -t proc proc proc/
 cd - > /dev/null
 
 echo "Setting up network namespace..."
-VETH="veth$CONTAINER_NAME"
-VPEER="vpeer$CONTAINER_NAME"
+VETH="veth1"
+VPEER="vpeer1"
 VETH_ADDR="10.200.1.1"
 VPEER_ADDR="10.200.1.2"
 IFACE="wlp8s0"
@@ -67,7 +67,13 @@ echo "Setting up Google's public DNS server..."
 rm $PWD/root/etc/resolv.conf
 echo "nameserver 8.8.8.8" > $PWD/root/etc/resolv.conf
 
+echo "Setting up cgroups..."
+cgcreate -g cpu,memory:/$CONTAINER_NAME
+cgset -r cpu.cfs_period_us=100000 \ -r cpu.cfs_quota_us=$[ 10000 * $(getconf _NPROCESSORS_ONLN) ] $CONTAINER_NAME
+cgset -r memory.limit_in_bytes=1G $CONTAINER_NAME
+
+echo "Initializing container..."
 cp ../init_container.sh $PWD/root/init_container.sh
 chmod +x $PWD/root/init_container.sh
 
-ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/root/proc chroot root/ ./init_container.sh $CONTAINER_NAME $USER_NAME
+cgexec -g cpu,memory:/$CONTAINER_NAME ip netns exec $CONTAINER_NAME unshare -p -f --mount-proc=$PWD/root/proc chroot root/ ./init_container.sh $USER_NAME
