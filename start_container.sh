@@ -9,7 +9,7 @@ fi
 
 if [[ $# -ne 3 ]]; then
     echo "Invalid number of args."
-    echo "Usage: ./container.sh [container_name] [user_name] [image_path]"
+    echo "Usage: ./start_container.sh [container_name] [user_name] [image_path]"
     echo "Currently, the image has to be a .tar.gz file."
     exit 2
 fi
