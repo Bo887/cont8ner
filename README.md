@@ -1,6 +1,6 @@
 # Cont8ner
 
-A set of scripts to create and delete a simple linux container in its own network/PID/mount namespace. 
+A set of scripts to create and delete a simple linux container. **Use at your own risk.**
 
 Usage:
 
